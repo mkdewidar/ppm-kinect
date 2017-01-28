@@ -12,6 +12,9 @@ Please read the CONTRIBUTING.md file for the rules on how to collaborate to the 
 ## The Team
 
 Mohamed Dewidar mohamed.dewidar2015@my.ntu.ac.uk
+
 Luke Billington luke.billington2015@my.ntu.ac.uk
+
 Benjamin Seeley ben.seeley2015@my.ntu.ac.uk
+
 Matthew Harris matthew.harris2015@my.ntu.ac.uk
