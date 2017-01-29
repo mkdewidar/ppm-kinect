@@ -3,7 +3,7 @@ The Kinect project for the group based Practical Project Management module at Un
 
 ## Goal
 
-The goal of the project is to investigate the use of the Kinect sensor for stroke patients under rehabilitation who have to perform repetitive exercises to regain the motion of parts of their face. The project tracks the face of the patient and helps the patient complete the exercise regularly.
+The goal of the project is to investigate the use of the Kinect sensor for stroke patients under rehabilitation who have to perform repetitive exercises to regain the motion of parts of their face. The project tracks the face of the patient and helps the patient complete the exercise.
 
 ## Contribution
 
