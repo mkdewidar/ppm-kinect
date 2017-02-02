@@ -5,8 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KinectFace"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Kinect Tracking" Height="350" Width="525"
+        Loaded="onWindowLoad">
+
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Viewbox Grid.Row="1">
+            <Canvas Name="canvas" Background="Black" />
+        </Viewbox>
     </Grid>
 </Window>
