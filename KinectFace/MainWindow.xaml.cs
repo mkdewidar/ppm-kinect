@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Kinect;
 
 namespace KinectFace
 {
@@ -20,9 +21,33 @@ namespace KinectFace
     /// </summary>
     public partial class MainWindow : Window
     {
+        private KinectSensor kSensor;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            kSensor = KinectSensor.GetDefault();
+            kSensor.Open();
+            // the open call above is actually async so this has it wait a bit so 
+            // the error message doesn't show up unecessarily
+            System.Threading.Thread.Sleep(1000);
+            
+            while (!kSensor.IsAvailable)
+            {
+                // the result of the message box
+                MessageBoxResult result = MessageBox.Show(
+                    "Please ensure a Kinect v2 is connected.\n\nDo you want to try again?",
+                    "No Kinect Detected", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+
+                if (result == MessageBoxResult.Cancel)
+                {
+                    Application.Current.Shutdown();
+                    // by default shutdown doesn't leave the function immediatly
+                    // return ensures that it won't try to finish the constructor
+                    return;
+                }
+            }
         }
     }
 }
