@@ -36,15 +36,16 @@ namespace KinectFace
 
             if (_kinectSensor != null)
             {
-                _multiFrameReader = _kinectSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Color);
+                _multiFrameReader = _kinectSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Color
+                    | FrameSourceTypes.Body);
                 _multiFrameReader.MultiSourceFrameArrived += _OnMultiFrameArrived;
 
-                //_faceSource = new HighDefinitionFaceFrameSource(_kinectSensor);
-                //_faceReader = _faceSource.OpenReader();
-                //_faceReader.FrameArrived += _FaceFrameHandler;
+                _faceSource = new HighDefinitionFaceFrameSource(_kinectSensor);
+                _faceReader = _faceSource.OpenReader();
+                _faceReader.FrameArrived += _FaceFrameHandler;
 
-                //_faceModel = new FaceModel();
-                //_faceAlignment = new FaceAlignment();
+                _faceModel = new FaceModel();
+                _faceAlignment = new FaceAlignment();
             }
         }
 
@@ -62,7 +63,7 @@ namespace KinectFace
             {
                 _ColorFrameHandler(multiSourceFrame.ColorFrameReference);
 
-                // _BodyFrameHandler(multiSourceFrame.BodyFrameReference);
+                _BodyFrameHandler(multiSourceFrame.BodyFrameReference);
             }
         }
 
@@ -70,30 +71,33 @@ namespace KinectFace
         {
             using (ColorFrame frame = frameRef.AcquireFrame())
             {
-                // The below algorithm is from the internet
-                // I have just found ways to take colourFrame width/height and convert 
-                // it to necessary types
-                int width = frame.FrameDescription.Width;
-                int height = frame.FrameDescription.Height;
-
-                byte[] pixels = new byte[width * height * ((PixelFormats.Bgr32.BitsPerPixel + 7) / 8)];
-
-                if (frame.RawColorImageFormat == ColorImageFormat.Bgra)
+                if (frame != null)
                 {
-                    frame.CopyRawFrameDataToArray(pixels);
-                }
-                else
-                {
-                    frame.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
-                }
+                    // The below algorithm is from the internet
+                    // I have just found ways to take colourFrame width/height and convert 
+                    // it to necessary types
+                    int width = frame.FrameDescription.Width;
+                    int height = frame.FrameDescription.Height;
 
-                int stride = width * PixelFormats.Bgra32.BitsPerPixel / 8;
+                    byte[] pixels = new byte[width * height * ((PixelFormats.Bgr32.BitsPerPixel + 7) / 8)];
 
-                ImageBrush canvasBackgroundBrush = new ImageBrush();
-                canvasBackgroundBrush.ImageSource = BitmapSource.Create(width, height,
-                    96, 96, PixelFormats.Bgr32, null, pixels, stride);
+                    if (frame.RawColorImageFormat == ColorImageFormat.Bgra)
+                    {
+                        frame.CopyRawFrameDataToArray(pixels);
+                    }
+                    else
+                    {
+                        frame.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
+                    }
 
-                _windowCanvas.Background = canvasBackgroundBrush;
+                    int stride = width * PixelFormats.Bgra32.BitsPerPixel / 8;
+
+                    ImageBrush canvasBackgroundBrush = new ImageBrush();
+                    canvasBackgroundBrush.ImageSource = BitmapSource.Create(width, height,
+                        96, 96, PixelFormats.Bgr32, null, pixels, stride);
+
+                    _windowCanvas.Background = canvasBackgroundBrush;
+                    }
             }
         }
 
