@@ -51,6 +51,6 @@ namespace KinectFace
 
             KinectHDFace FaceTracker = new KinectHDFace(_kinectSensor, canvas);
         }
-    }6
+    }
 
 }
