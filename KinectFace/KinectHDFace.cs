@@ -16,12 +16,20 @@ namespace KinectFace
     /// </summary>
     public class KinectHDFace
     {
+        const int COLOUR_FRAME_WIDTH = 1920;
+        const int COLOUR_FRAME_HEIGHT = 1080;
+
         private KinectSensor _kinectSensor = null;
-        private Canvas _windowCanvas = null;
         private MultiSourceFrameReader _multiFrameReader = null;
         private HighDefinitionFaceFrameReader _faceReader = null;
         private HighDefinitionFaceFrameSource _faceSource = null;
         private FaceAlignment _faceAlignment = null;
+
+        // colour image for the Kinect colour frames, displayed in window
+        //private Image _colourImage;
+
+        // canvas for drawing points on the face, displayed in window
+        private Canvas _windowCanvas = null;
 
         // Allows access to the creates 3D mesh of the face (set of vertices)
         private FaceModel _faceModel = null;
@@ -33,6 +41,7 @@ namespace KinectFace
         {
             _windowCanvas = drawingCanvas;
             _kinectSensor = sensor;
+            //_colourImage = colourImg;
 
             if (_kinectSensor != null)
             {
@@ -92,12 +101,14 @@ namespace KinectFace
 
                     int stride = width * PixelFormats.Bgra32.BitsPerPixel / 8;
 
+                    //_colourImage.Source = BitmapSource.Create(width, height,
+                    //    96, 96, PixelFormats.Bgr32, null, pixels, stride);
+
                     ImageBrush canvasBackgroundBrush = new ImageBrush();
-                    canvasBackgroundBrush.ImageSource = BitmapSource.Create(width, height,
-                        96, 96, PixelFormats.Bgr32, null, pixels, stride);
+                    canvasBackgroundBrush.ImageSource = BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgr32, null, pixels, stride);
 
                     _windowCanvas.Background = canvasBackgroundBrush;
-                    }
+                }
             }
         }
 
@@ -179,13 +190,14 @@ namespace KinectFace
 
                     // This is how we convert metres -> pixel location
                     // The Kinect Sensor has an in-built "coordinate mapper"
-                    DepthSpacePoint pixelLocation = _kinectSensor.CoordinateMapper
-                        .MapCameraPointToDepthSpace(faceSpacePoint);
+                    ColorSpacePoint pixelLocation = _kinectSensor.CoordinateMapper
+                        .MapCameraPointToColorSpace(faceSpacePoint);
 
-                    // Draw face vertices to the canvas by setting left and top properties to the X and Y
-                    // Mapped by coordinate mapper
-                    Canvas.SetLeft(_faceVertices[i], pixelLocation.X);
-                    Canvas.SetTop(_faceVertices[i], pixelLocation.Y);
+
+                    // Align face vertices on the canvas by setting left and top properties to the X and Y
+                    // Mapped by coordinate mapper; attempted to scale to width and height of canvas
+                    Canvas.SetLeft(_faceVertices[i], pixelLocation.X * (_windowCanvas.Width / COLOUR_FRAME_WIDTH) - _faceVertices[i].Width / 2);
+                    Canvas.SetTop(_faceVertices[i], pixelLocation.Y * (_windowCanvas.Height / COLOUR_FRAME_HEIGHT) - _faceVertices[i].Height / 2);
                 }
             }
         }
