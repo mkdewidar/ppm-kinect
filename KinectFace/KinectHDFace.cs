@@ -4,6 +4,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 
 using Microsoft.Kinect;
 using Microsoft.Kinect.Face;
@@ -37,8 +38,13 @@ namespace KinectFace
         // List of vertices which are aligned with the face
         private List<Ellipse> _faceVertices = new List<Ellipse>();
 
+        // Stopwatch for FPS counter
+        private Stopwatch _frameTime = new Stopwatch();
+        private Logfps _logfps = new Logfps();
+
         public KinectHDFace(KinectSensor sensor, Canvas drawingCanvas)
         {
+            _frameTime.Start();
             _windowCanvas = drawingCanvas;
             _kinectSensor = sensor;
             //_colourImage = colourImg;
@@ -67,6 +73,14 @@ namespace KinectFace
         /// <param name="e">The reference to the multi source frame</param>
         private void _OnMultiFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
+
+            //frame rate counter stuff:
+            _frameTime.Stop();
+            long currentFrameTime = _frameTime.ElapsedMilliseconds;
+            _frameTime.Reset();
+            _logfps.addNewFrameTime(currentFrameTime);
+            _frameTime.Start();
+
             var multiSourceFrame = e.FrameReference.AcquireFrame();
             if (multiSourceFrame != null)
             {
