@@ -146,11 +146,11 @@ namespace KinectFace
             {
                 faceFrame.GetAndRefreshFaceAlignmentResult(_faceAlignment);
 
-                DrawFacePoints();
+                _DrawFacePoints();
             }
         }
 
-        private void DrawFacePoints()
+        private void _DrawFacePoints()
         {
             if (_faceModel == null)
             {
@@ -200,6 +200,11 @@ namespace KinectFace
                     Canvas.SetTop(_faceVertices[i], pixelLocation.Y * (_windowCanvas.Height / COLOUR_FRAME_HEIGHT) - _faceVertices[i].Height / 2);
                 }
             }
+        }
+
+        private void _augmentFacePoint()
+        {
+
         }
     }
 }
