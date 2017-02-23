@@ -8,6 +8,8 @@ using System.Linq;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Face;
 
+using Math = System.Math;
+
 namespace KinectFace
 {
     /// <summary>
@@ -36,6 +38,27 @@ namespace KinectFace
 
         // List of vertices which are aligned with the face
         private List<Ellipse> _faceVertices = new List<Ellipse>();
+
+
+        //List stores int point indexes for key facial features for comparison
+        //Only uses single points per feature per side, could be extended with additional nodes
+        //.length method would return total number of elements, subsequently, TARGET_FEATURE_COUNT
+        //should be equal to the rows in this array
+        private int[,] _targetFeatureList = new int[,]
+        {
+            //mouth corners
+            {(int) HighDetailFacePoints.MouthLeftcorner, (int)HighDetailFacePoints.MouthRightcorner},
+            //eyebrows
+            {(int) HighDetailFacePoints.LefteyebrowOuter, (int)HighDetailFacePoints.RighteyebrowOuter},
+            {(int) HighDetailFacePoints.LefteyebrowCenter, (int)HighDetailFacePoints.RighteyebrowCenter},
+
+            //cheeks
+            {(int) HighDetailFacePoints.LeftcheekCenter, (int) HighDetailFacePoints.RightcheekCenter},
+            {(int) HighDetailFacePoints.Leftcheekbone, (int) HighDetailFacePoints.Rightcheekbone}
+        };
+
+        private CameraSpacePoint _referencePoint;
+
 
         public KinectHDFace(KinectSensor sensor, Canvas drawingCanvas)
         {
@@ -141,6 +164,9 @@ namespace KinectFace
         {
             HighDefinitionFaceFrame faceFrame = e.FrameReference.AcquireFrame();
 
+            //clear previous frame's points
+            _windowCanvas.Children.Clear();
+
             // Checks face is tracked from body frame handler
             if (faceFrame != null && faceFrame.IsFaceTracked)
             {
@@ -152,7 +178,7 @@ namespace KinectFace
 
         private void _DrawFacePoints()
         {
-            if (_faceModel == null)
+            if (_faceModel == null | _faceAlignment == null)
             {
                 return;
             }
@@ -160,6 +186,9 @@ namespace KinectFace
             // Returns vertices as a list of read-only CameraSpacePoints
             // according to docs, points are in metres?
             var faceAlignedVertices = _faceModel.CalculateVerticesForAlignment(_faceAlignment);
+            _referencePoint = faceAlignedVertices[(int)HighDetailFacePoints.NoseTop];
+
+            _faceVertices = new List<Ellipse>();
 
             // Check that we have vertices to draw that have been aligned
             if (faceAlignedVertices.Count > 0)
@@ -168,13 +197,14 @@ namespace KinectFace
                 // If the list of face vertices is 0 (None have been recorded yet...)
                 if (_faceVertices.Count == 0)
                 {
-                    for (int i = 0; i < faceAlignedVertices.Count; i++)
+                    //initialise the ellipses for the features 
+                    for (int i = 0; i < (_targetFeatureList.GetUpperBound(0) + 1); i++)
                     {
-                        Ellipse faceVertex = new Ellipse { Width = 2.0, Height = 2.0,
-                            Fill = new SolidColorBrush(Colors.White) };
-
-                        _faceVertices.Add(faceVertex);
+                        createFeatureEllipse(i, faceAlignedVertices[_targetFeatureList[i, 0]], faceAlignedVertices[_targetFeatureList[i, 1]]);
                     }
+
+                    // create a ellipse for the reference point
+                    createEllipseInstance(Colors.White);
 
                     foreach (Ellipse faceVertex in _faceVertices)
                     {
@@ -183,28 +213,80 @@ namespace KinectFace
                     }
                 }
 
-                for (int i = 0; i < faceAlignedVertices.Count; i++)
+                for (int i = 0; i < (_targetFeatureList.GetUpperBound(0) + 1); i++)
                 {
-                    // 3D Camera point. Has to be converted to 2D "depth point"
-                    CameraSpacePoint faceSpacePoint = faceAlignedVertices[i];
+                    for (int j = 0; j < (_targetFeatureList.GetUpperBound(1) + 1); j++)
+                    {
+                        // 3D Camera point. Has to be converted to 2D "depth point"
+                        CameraSpacePoint faceSpacePoint = faceAlignedVertices[_targetFeatureList[i, j]];
 
-                    // This is how we convert metres -> pixel location
-                    // The Kinect Sensor has an in-built "coordinate mapper"
-                    ColorSpacePoint pixelLocation = _kinectSensor.CoordinateMapper
-                        .MapCameraPointToColorSpace(faceSpacePoint);
+                        // This is how we convert metres -> pixel location
+                        // The Kinect Sensor has an in-built "coordinate mapper"
+                        ColorSpacePoint pixelLocation = _kinectSensor.CoordinateMapper
+                            .MapCameraPointToColorSpace(faceSpacePoint);
 
 
-                    // Align face vertices on the canvas by setting left and top properties to the X and Y
-                    // Mapped by coordinate mapper; attempted to scale to width and height of canvas
-                    Canvas.SetLeft(_faceVertices[i], pixelLocation.X * (_windowCanvas.Width / COLOUR_FRAME_WIDTH) - _faceVertices[i].Width / 2);
-                    Canvas.SetTop(_faceVertices[i], pixelLocation.Y * (_windowCanvas.Height / COLOUR_FRAME_HEIGHT) - _faceVertices[i].Height / 2);
+                        // Align face vertices on the canvas by setting left and top properties to the X and Y
+                        // Mapped by coordinate mapper; attempted to scale to width and height of canvas
+                        Canvas.SetLeft(_faceVertices[(i * 2 + j)], pixelLocation.X * (_windowCanvas.Width / COLOUR_FRAME_WIDTH) - _faceVertices[(i * 2 + j)].Width / 2);
+                        Canvas.SetTop(_faceVertices[(i * 2 + j)], pixelLocation.Y * (_windowCanvas.Height / COLOUR_FRAME_HEIGHT) - _faceVertices[(i * 2 + j)].Height / 2);
+                    }
                 }
+
+                // reference point
+                ColorSpacePoint referencePoint = _kinectSensor.CoordinateMapper.MapCameraPointToColorSpace(_referencePoint);
+                Canvas.SetLeft(_faceVertices.Last(), referencePoint.X * (_windowCanvas.Width / COLOUR_FRAME_WIDTH) - _faceVertices.Last().Width / 2);
+                Canvas.SetTop(_faceVertices.Last(), referencePoint.Y * (_windowCanvas.Height / COLOUR_FRAME_HEIGHT) - _faceVertices.Last().Height / 2);
+
             }
         }
 
-        private void _augmentFacePoint()
+        private void createFeatureEllipse(int index, CameraSpacePoint left, CameraSpacePoint right)
         {
+            /* Initial Idea, not used, code kept for sake of history, clean version will be committed after
+            //Calculate the difference between the x, y and z independently
+            float xDiff = Math.Abs(Math.Abs((left.X * 1000) - (_referencePoint.X * 1000)) - Math.Abs((right.X * 1000) - (_referencePoint.X * 1000)));
+            float yDiff = Math.Abs(Math.Abs(left.Y - _referencePoint.Y) - Math.Abs(right.Y - _referencePoint.Y)) * 1000;
+            float zDiff = Math.Abs(Math.Abs(left.Z - _referencePoint.Z) - Math.Abs(right.Z - _referencePoint.Z)) * 1000;
 
+            //Use exponent to ensure 0 diffs in certain axis don't neturalise overall agregate.
+            //* is attempting to create some agregate value
+            double diff = Math.Log(Math.Exp(xDiff) * Math.Exp(yDiff) * Math.Exp(zDiff));
+            */
+
+            //A vector approach
+            double leftLength = Math.Sqrt(Math.Pow((left.X - _referencePoint.X), 2) + Math.Pow((left.Y - _referencePoint.Y), 2) + Math.Pow((left.Z - _referencePoint.Z), 2)) * 1000;
+            double rightLength = Math.Sqrt(Math.Pow((right.X - _referencePoint.X), 2) + Math.Pow((right.Y - _referencePoint.Y), 2) + Math.Pow((right.Z - _referencePoint.Z), 2)) * 1000;
+
+            //Calculates difference and scales up to 0 - 255 range (ish)
+            double vectDiff = Math.Abs(leftLength - rightLength)*50;
+
+            if (vectDiff > 255)
+            {
+                vectDiff = 255;
+            }
+
+            Color featureColor = Colors.Black;
+            featureColor.R = System.Convert.ToByte(vectDiff);
+            featureColor.G = System.Convert.ToByte(vectDiff);
+            featureColor.B = System.Convert.ToByte(vectDiff);
+
+            for (int i = 0; i < 2; i++)
+            {
+                createEllipseInstance(featureColor);
+            }
+        }
+
+        private void createEllipseInstance(Color col)
+        {
+            Ellipse newEllipse = new Ellipse
+            {
+                Width = 2.0,
+                Height = 2.0,
+                Fill = new SolidColorBrush(col)
+            };
+
+            _faceVertices.Add(newEllipse);
         }
     }
 }
