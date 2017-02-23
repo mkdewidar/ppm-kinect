@@ -164,9 +164,6 @@ namespace KinectFace
         {
             HighDefinitionFaceFrame faceFrame = e.FrameReference.AcquireFrame();
 
-            //clear previous frame's points
-            _windowCanvas.Children.Clear();
-
             // Checks face is tracked from body frame handler
             if (faceFrame != null && faceFrame.IsFaceTracked)
             {
@@ -188,6 +185,8 @@ namespace KinectFace
             var faceAlignedVertices = _faceModel.CalculateVerticesForAlignment(_faceAlignment);
             _referencePoint = faceAlignedVertices[(int)HighDetailFacePoints.NoseTop];
 
+            //clear previous frame's points
+            _windowCanvas.Children.Clear();
             _faceVertices = new List<Ellipse>();
 
             // Check that we have vertices to draw that have been aligned
@@ -243,23 +242,12 @@ namespace KinectFace
 
         private void createFeatureEllipse(int index, CameraSpacePoint left, CameraSpacePoint right)
         {
-            /* Initial Idea, not used, code kept for sake of history, clean version will be committed after
-            //Calculate the difference between the x, y and z independently
-            float xDiff = Math.Abs(Math.Abs((left.X * 1000) - (_referencePoint.X * 1000)) - Math.Abs((right.X * 1000) - (_referencePoint.X * 1000)));
-            float yDiff = Math.Abs(Math.Abs(left.Y - _referencePoint.Y) - Math.Abs(right.Y - _referencePoint.Y)) * 1000;
-            float zDiff = Math.Abs(Math.Abs(left.Z - _referencePoint.Z) - Math.Abs(right.Z - _referencePoint.Z)) * 1000;
-
-            //Use exponent to ensure 0 diffs in certain axis don't neturalise overall agregate.
-            //* is attempting to create some agregate value
-            double diff = Math.Log(Math.Exp(xDiff) * Math.Exp(yDiff) * Math.Exp(zDiff));
-            */
-
-            //A vector approach
+            //calculate vectors between the reference and the left and right feature
             double leftLength = Math.Sqrt(Math.Pow((left.X - _referencePoint.X), 2) + Math.Pow((left.Y - _referencePoint.Y), 2) + Math.Pow((left.Z - _referencePoint.Z), 2)) * 1000;
             double rightLength = Math.Sqrt(Math.Pow((right.X - _referencePoint.X), 2) + Math.Pow((right.Y - _referencePoint.Y), 2) + Math.Pow((right.Z - _referencePoint.Z), 2)) * 1000;
 
             //Calculates difference and scales up to 0 - 255 range (ish)
-            double vectDiff = Math.Abs(leftLength - rightLength)*50;
+            double vectDiff = Math.Abs(leftLength - rightLength) * 50;
 
             if (vectDiff > 255)
             {
