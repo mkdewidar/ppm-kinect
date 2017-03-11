@@ -41,7 +41,8 @@ public class ColorSourceManager : MonoBehaviour {
         }
 
         _renderer = GetComponent<Renderer>();
-        _renderer.material.SetTextureScale("_MainTex", new Vector2(-1, 1));
+        // 1 and -1 are the settings that let it output be like a mirror
+        _renderer.material.SetTextureScale("_MainTex", new Vector2(1, -1));
     }
 
     private void _OnMultiFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
