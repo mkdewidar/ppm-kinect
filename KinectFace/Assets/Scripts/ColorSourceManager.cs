@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Linq;
 using UnityEngine;
 using Windows.Kinect;
+using Microsoft.Kinect.Face;
 
 public class ColorSourceManager : MonoBehaviour {
 
@@ -10,9 +10,12 @@ public class ColorSourceManager : MonoBehaviour {
     public Texture2D texture { get; set; }
 
     private KinectSensor _sensor;
-    private ColorFrameReader _reader;
     private byte[] _colorPixels;
-
+    private MultiSourceFrameReader _multiFrameReader;
+    private HighDefinitionFaceFrameReader _faceReader;
+    private HighDefinitionFaceFrameSource _faceSource;
+    private FaceAlignment _faceAlignment;
+    private FaceModel _faceModel;
     private Renderer _renderer;
 
     void Start()
@@ -21,7 +24,8 @@ public class ColorSourceManager : MonoBehaviour {
 
         if (_sensor != null)
         {
-            _reader = _sensor.ColorFrameSource.OpenReader();
+            _multiFrameReader = _sensor.OpenMultiSourceFrameReader(FrameSourceTypes.Color);
+            _multiFrameReader.MultiSourceFrameArrived += _OnMultiFrameArrived;
 
             var frameDesc = _sensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Rgba);
             colorWidth = frameDesc.Width;
@@ -37,35 +41,77 @@ public class ColorSourceManager : MonoBehaviour {
         }
 
         _renderer = GetComponent<Renderer>();
-        _renderer.material.SetTextureScale("_MainTex", new Vector2(1, 1));
+        _renderer.material.SetTextureScale("_MainTex", new Vector2(-1, 1));
     }
 
-    void Update()
+    private void _OnMultiFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
     {
-        // the pixels of the color source are applied to a texture which is renderered as a material
-        if (_reader != null)
+        var multiSourceFrame = e.FrameReference.AcquireFrame();
+        if (multiSourceFrame != null)
         {
-            var frame = _reader.AcquireLatestFrame();
+            _ColorFrameHandler(multiSourceFrame.ColorFrameReference);
 
+            _BodyFrameHandler(multiSourceFrame.BodyFrameReference);
+        }
+    }
+
+    private void _ColorFrameHandler(ColorFrameReference frameRef)
+    {
+        using (ColorFrame frame = frameRef.AcquireFrame())
+        {
             if (frame != null)
             {
                 frame.CopyConvertedFrameDataToArray(_colorPixels, ColorImageFormat.Rgba);
                 texture.LoadRawTextureData(_colorPixels);
                 texture.Apply();
 
-                frame.Dispose();
-                frame = null;
+                _renderer.material.mainTexture = texture;
             }
         }
-        _renderer.material.mainTexture = texture;
+    }
+
+    private void _BodyFrameHandler(BodyFrameReference frameRef)
+    {
+        using (BodyFrame frame = frameRef.AcquireFrame())
+        {
+            if (frame != null)
+            {
+                Body[] bodies = new Body[frame.BodyCount];
+                frame.GetAndRefreshBodyData(bodies);
+
+                // Select last body in list which is being tracked
+                Body body = bodies.Where(thisBody => thisBody.IsTracked).LastOrDefault();
+
+                // If it's not already tracking...
+                if (!_faceSource.IsTrackingIdValid)
+                {
+                    // And if the body from the List<Body> isn't null...
+                    if (body != null)
+                    {
+                        _faceSource.TrackingId = body.TrackingId;
+                    }
+                }
+            }
+        }
+    }
+
+    private void _FaceFrameHandler(object sender, HighDefinitionFaceFrameArrivedEventArgs e)
+    {
+        HighDefinitionFaceFrame faceFrame = e.FrameReference.AcquireFrame();
+
+        // Checks face is tracked from body frame handler
+        if (faceFrame != null && faceFrame.IsFaceTracked)
+        {
+            faceFrame.GetAndRefreshFaceAlignmentResult(_faceAlignment);
+        }
     }
 
     void OnApplicationQuit()
     {
-        if (_reader != null)
+        if (_multiFrameReader != null)
         {
-            _reader.Dispose();
-            _reader = null;
+            _multiFrameReader.Dispose();
+            _multiFrameReader = null;
         }
 
         if (_sensor != null)
