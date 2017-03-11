@@ -37,7 +37,7 @@ public class ColorSourceManager : MonoBehaviour {
         }
 
         _renderer = GetComponent<Renderer>();
-        _renderer.material.SetTextureScale("_MainTex", new Vector2(-1, 1));
+        _renderer.material.SetTextureScale("_MainTex", new Vector2(1, -1));
     }
 
     void Update()
