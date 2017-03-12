@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 using Windows.Kinect;
+using Microsoft.Kinect.Face;
 
 public class ColorSourceManager : MonoBehaviour {
 
@@ -10,9 +12,12 @@ public class ColorSourceManager : MonoBehaviour {
     public Texture2D texture { get; set; }
 
     private KinectSensor _sensor;
-    private ColorFrameReader _reader;
+    private MultiSourceFrameReader _reader;
     private byte[] _colorPixels;
-
+    private HighDefinitionFaceFrameSource _faceSource;
+    private HighDefinitionFaceFrameReader _faceReader;
+    private FaceAlignment _faceAlignment;
+    private FaceModel _faceModel;
     private Renderer _renderer;
 
     void Start()
@@ -21,11 +26,17 @@ public class ColorSourceManager : MonoBehaviour {
 
         if (_sensor != null)
         {
-            _reader = _sensor.ColorFrameSource.OpenReader();
+            _reader = _sensor.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Body);
 
-            var frameDesc = _sensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Rgba);
+            _faceSource = HighDefinitionFaceFrameSource.Create(_sensor);
+            _faceReader = _faceSource.OpenReader();
+
+            FrameDescription frameDesc = _sensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Rgba);
             colorWidth = frameDesc.Width;
             colorHeight = frameDesc.Height;
+
+            _faceAlignment = FaceAlignment.Create();
+            _faceModel = FaceModel.Create();
 
             texture = new Texture2D(frameDesc.Width, frameDesc.Height, TextureFormat.RGBA32, false);
             _colorPixels = new byte[frameDesc.BytesPerPixel * frameDesc.LengthInPixels];
@@ -45,16 +56,59 @@ public class ColorSourceManager : MonoBehaviour {
         // the pixels of the color source are applied to a texture which is renderered as a material
         if (_reader != null)
         {
-            var frame = _reader.AcquireLatestFrame();
+            MultiSourceFrame multiSourceFrame = _reader.AcquireLatestFrame();
 
-            if (frame != null)
+            if (multiSourceFrame != null)
             {
-                frame.CopyConvertedFrameDataToArray(_colorPixels, ColorImageFormat.Rgba);
-                texture.LoadRawTextureData(_colorPixels);
-                texture.Apply();
+                ColorFrame colorFrame = multiSourceFrame.ColorFrameReference.AcquireFrame();
+                if (colorFrame != null)
+                {
+                    colorFrame.CopyConvertedFrameDataToArray(_colorPixels, ColorImageFormat.Rgba);
+                    texture.LoadRawTextureData(_colorPixels);
+                    texture.Apply();
 
-                frame.Dispose();
-                frame = null;
+                    colorFrame.Dispose();
+                }
+
+                BodyFrame bodyFrame = multiSourceFrame.BodyFrameReference.AcquireFrame();
+                if (bodyFrame != null)
+                {
+                    Body[] bodies = new Body[bodyFrame.BodyCount];
+                    bodyFrame.GetAndRefreshBodyData(bodies);
+
+                    // Select last body in list which is being tracked
+                    Body body = bodies.Where(thisBody => thisBody.IsTracked).LastOrDefault();
+
+                    // If it's not already tracking...
+                    if (!_faceSource.IsTrackingIdValid)
+                    {
+                        // And if the body from the List<Body> isn't null...
+                        if (body != null)
+                        {
+                            _faceSource.TrackingId = body.TrackingId;
+                        }
+                    }
+
+                    bodyFrame.Dispose();
+                }
+
+                HighDefinitionFaceFrame faceFrame = _faceReader.AcquireLatestFrame();
+                if (faceFrame != null)
+                {
+                    faceFrame.GetAndRefreshFaceAlignmentResult(_faceAlignment);
+                    CameraSpacePoint[] vertInCamSpace = _faceModel.CalculateVerticesForAlignment(_faceAlignment).ToArray<CameraSpacePoint>();
+                    ColorSpacePoint[] vertInColorSpace = new ColorSpacePoint[vertInCamSpace.Length];
+                    _sensor.CoordinateMapper.MapCameraPointsToColorSpace(vertInCamSpace, vertInColorSpace);
+
+                    for (int vertexCount = 0; vertexCount < vertInCamSpace.Length; vertexCount++)
+                    {
+                        Vector2 vertOnTexture = new Vector2(vertInColorSpace[vertexCount].X, vertInColorSpace[vertexCount].Y);
+
+                        texture.SetPixel((int)vertOnTexture.x, (int)vertOnTexture.y, UnityEngine.Color.red);
+                    }
+
+                    faceFrame.Dispose();
+                }
             }
         }
         _renderer.material.mainTexture = texture;
