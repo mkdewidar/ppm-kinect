@@ -10,6 +10,7 @@ public class ColorSourceManager : MonoBehaviour {
     public int colorWidth { get; private set; }
     public int colorHeight { get; private set; }
     public Texture2D texture { get; set; }
+    public Vector3[] facePoints { get; private set; } 
 
     private KinectSensor _sensor;
     private MultiSourceFrameReader _reader;
@@ -20,7 +21,7 @@ public class ColorSourceManager : MonoBehaviour {
     private FaceModel _faceModel;
     private Renderer _renderer;
 
-    void Start()
+    void Awake()
     {
         _sensor = KinectSensor.GetDefault();
 
@@ -38,6 +39,7 @@ public class ColorSourceManager : MonoBehaviour {
             _faceAlignment = FaceAlignment.Create();
             _faceModel = FaceModel.Create();
 
+
             texture = new Texture2D(frameDesc.Width, frameDesc.Height, TextureFormat.RGBA32, false);
             _colorPixels = new byte[frameDesc.BytesPerPixel * frameDesc.LengthInPixels];
 
@@ -49,6 +51,9 @@ public class ColorSourceManager : MonoBehaviour {
 
         _renderer = GetComponent<Renderer>();
         _renderer.material.SetTextureScale("_MainTex", new Vector2(1, -1));
+        
+        // there are approx 1347 points that can be tracked
+        facePoints = new Vector3[1347];
     }
 
     void Update()
@@ -77,7 +82,7 @@ public class ColorSourceManager : MonoBehaviour {
                     bodyFrame.GetAndRefreshBodyData(bodies);
 
                     // Select last body in list which is being tracked
-                    Body body = bodies.Where(thisBody => thisBody.IsTracked).LastOrDefault();
+                    Body body = bodies.Where(thisBody => thisBody.IsTracked).FirstOrDefault();
 
                     // If it's not already tracking...
                     if (!_faceSource.IsTrackingIdValid)
@@ -97,14 +102,10 @@ public class ColorSourceManager : MonoBehaviour {
                 {
                     faceFrame.GetAndRefreshFaceAlignmentResult(_faceAlignment);
                     CameraSpacePoint[] vertInCamSpace = _faceModel.CalculateVerticesForAlignment(_faceAlignment).ToArray<CameraSpacePoint>();
-                    ColorSpacePoint[] vertInColorSpace = new ColorSpacePoint[vertInCamSpace.Length];
-                    _sensor.CoordinateMapper.MapCameraPointsToColorSpace(vertInCamSpace, vertInColorSpace);
 
-                    for (int vertexCount = 0; vertexCount < vertInCamSpace.Length; vertexCount++)
+                    for (int index = 0; index < vertInCamSpace.Length; index++)
                     {
-                        Vector2 vertOnTexture = new Vector2(vertInColorSpace[vertexCount].X, vertInColorSpace[vertexCount].Y);
-
-                        texture.SetPixel((int)vertOnTexture.x, (int)vertOnTexture.y, UnityEngine.Color.red);
+                        facePoints[index] = new Vector3(vertInCamSpace[index].X * 10, vertInCamSpace[index].Y * 10, vertInCamSpace[index].Z * 10);
                     }
 
                     faceFrame.Dispose();
@@ -113,6 +114,8 @@ public class ColorSourceManager : MonoBehaviour {
         }
         _renderer.material.mainTexture = texture;
     }
+
+
 
     void OnApplicationQuit()
     {
