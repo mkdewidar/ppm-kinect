@@ -8,6 +8,8 @@ public class ColorSourceManager : MonoBehaviour {
     public int colorWidth { get; private set; }
     public int colorHeight { get; private set; }
     public Texture2D texture { get; set; }
+    public Vector3[] facePoints { get; private set; }
+    public System.EventHandler facePointsReady;
 
     private KinectSensor _sensor;
     private byte[] _colorPixels;
@@ -18,7 +20,7 @@ public class ColorSourceManager : MonoBehaviour {
     private FaceModel _faceModel;
     private Renderer _renderer;
 
-    void Start()
+    void Awake()
     {
         _sensor = KinectSensor.GetDefault();
 
@@ -30,6 +32,12 @@ public class ColorSourceManager : MonoBehaviour {
             var frameDesc = _sensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Rgba);
             colorWidth = frameDesc.Width;
             colorHeight = frameDesc.Height;
+
+            _faceSource = HighDefinitionFaceFrameSource.Create(_sensor);
+            _faceReader = _faceSource.OpenReader();
+            _faceReader.FrameArrived += _FaceFrameHandler;
+
+            _faceModel = FaceModel.Create();
 
             texture = new Texture2D(frameDesc.Width, frameDesc.Height, TextureFormat.RGBA32, false);
             _colorPixels = new byte[frameDesc.BytesPerPixel * frameDesc.LengthInPixels];
@@ -43,6 +51,8 @@ public class ColorSourceManager : MonoBehaviour {
         _renderer = GetComponent<Renderer>();
         // 1 and -1 are the settings that let it output be like a mirror
         _renderer.material.SetTextureScale("_MainTex", new Vector2(1, -1));
+
+        facePoints = new Vector3[1347];
     }
 
     private void _OnMultiFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
@@ -69,6 +79,7 @@ public class ColorSourceManager : MonoBehaviour {
                 _renderer.material.mainTexture = texture;
             }
         }
+        Debug.Log("Rendering color frame");
     }
 
     private void _BodyFrameHandler(BodyFrameReference frameRef)
@@ -98,13 +109,24 @@ public class ColorSourceManager : MonoBehaviour {
 
     private void _FaceFrameHandler(object sender, HighDefinitionFaceFrameArrivedEventArgs e)
     {
-        HighDefinitionFaceFrame faceFrame = e.FrameReference.AcquireFrame();
-
-        // Checks face is tracked from body frame handler
-        if (faceFrame != null && faceFrame.IsFaceTracked)
+        using (HighDefinitionFaceFrame faceFrame = e.FrameReference.AcquireFrame())
         {
-            faceFrame.GetAndRefreshFaceAlignmentResult(_faceAlignment);
+            // Checks face is tracked from body frame handler
+            if (faceFrame != null && faceFrame.IsFaceTracked)
+            {
+                faceFrame.GetAndRefreshFaceAlignmentResult(_faceAlignment);
+                CameraSpacePoint[] vertsInCamSpace = _faceModel.CalculateVerticesForAlignment(_faceAlignment).ToArray<CameraSpacePoint>();
+
+                for (int index = 0; index < vertsInCamSpace.Length; index++)
+                {
+                    facePoints[index] = new Vector3(vertsInCamSpace[index].X * 10, vertsInCamSpace[index].Y * 10, vertsInCamSpace[index].Z * 10);
+                }
+            }
+
+            Debug.Log("Handling face frame");
+            facePointsReady(this, new System.EventArgs());
         }
+
     }
 
     void OnApplicationQuit()
