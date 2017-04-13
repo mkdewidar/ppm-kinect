@@ -158,6 +158,7 @@ namespace KinectFace
             // Checks face is tracked from body frame handler
             if (faceFrame != null && faceFrame.IsFaceTracked)
             {
+                Logfps._faceDetected = true;
                 faceFrame.GetAndRefreshFaceAlignmentResult(_faceAlignment);
 
                 DrawFacePoints();
@@ -213,7 +214,8 @@ namespace KinectFace
                     Canvas.SetLeft(_faceVertices[i], pixelLocation.X * (_windowCanvas.Width / COLOUR_FRAME_WIDTH) - _faceVertices[i].Width / 2);
                     Canvas.SetTop(_faceVertices[i], pixelLocation.Y * (_windowCanvas.Height / COLOUR_FRAME_HEIGHT) - _faceVertices[i].Height / 2);
                 }
-            }
+                
+             }
         }
     }
 }
