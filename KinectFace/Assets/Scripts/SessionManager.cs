@@ -11,18 +11,33 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class SessionManager : MonoBehaviour
 {
-    public static SessionManager Instance;
+    public static SessionManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                // We can't rely on the start for the Session Manager to run before 
+                // we try and return the instance below, so we just set it now 
+                // and start is called whenever unity decides too
+                _instance = new GameObject().AddComponent<SessionManager>();
+            }
+            return _instance;
+        }
+    }
 
-    private enum SessionState { MENU, GAME, STATECOUNT }
+    private static SessionManager _instance;
+
+    public enum SessionState { MENU, GAME, STATECOUNT }
     private SessionState sessionState;
     [SerializeField]
     // The name of the scenes for each of the states, they are 
     // loaded whenever the game is moved into that state.
-    private string[] SessionScenes;
+    private string[] SessionScenes = { "Menu", "GameMain" };
 
 	void Start ()
     {
-        if ((Instance != null) && (Instance != this))
+        if ((_instance != null) && (_instance != this))
         {
             Debug.LogError("ERROR: There are other session managers, this shouldn't have happened");
 
@@ -34,14 +49,14 @@ public class SessionManager : MonoBehaviour
         sessionState = SessionState.MENU;
         SceneManager.LoadScene(SessionScenes[(int)sessionState]);
 
-        Instance = this;
+        _instance = this;
 	}
 	
     /// <summary>
     /// Closes all the other scenes in the game and loads this new state's scene.
     /// </summary>
     /// <param name="newState">The state that we are transitioning to</param>
-    void TransitionState(SessionState newState)
+    public void TransitionState(SessionState newState)
     {
         SceneManager.LoadScene(SessionScenes[(int)newState]);
 
