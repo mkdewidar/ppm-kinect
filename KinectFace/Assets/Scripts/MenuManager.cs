@@ -9,6 +9,6 @@ public class MenuManager : MonoBehaviour
 {
     public void onStartGame()
     {
-        SessionManager.Instance.TransitionState(SessionManager.SessionState.GAME);
+        SessionManager.instance.TransitionState(SessionManager.SessionState.GAME);
     }
 }

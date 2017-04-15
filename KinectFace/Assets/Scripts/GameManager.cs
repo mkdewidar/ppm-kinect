@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance
+    public static GameManager instance
     {
         get
         {
@@ -17,24 +17,24 @@ public class GameManager : MonoBehaviour
             return _instance;
         }
     }
-
-    private static GameManager _instance;
+    
     // All the minigame scenes
-    public string[] GameScenes = { };
-    public int currentSceneIndex;
-    public bool paused;
+    private string[] _gameScenes = { };
+    private int _currentSceneIndex;
+    private bool _paused;
+    private static GameManager _instance;
 
 	void Start ()
     {
-        currentSceneIndex = 0;
-        paused = false;
+        _currentSceneIndex = 0;
+        _paused = false;
         DontDestroyOnLoad(gameObject);
 	}
 
     public void NextMiniGame()
     {
-        SceneManager.UnloadSceneAsync(GameScenes[currentSceneIndex]);
-        currentSceneIndex++;
-        SceneManager.LoadScene(GameScenes[currentSceneIndex]);
+        SceneManager.UnloadSceneAsync(_gameScenes[_currentSceneIndex]);
+        _currentSceneIndex++;
+        SceneManager.LoadScene(_gameScenes[_currentSceneIndex]);
     }
 }

@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class SessionManager : MonoBehaviour
 {
-    public static SessionManager Instance
+    public static SessionManager instance
     {
         get
         {
@@ -25,14 +25,13 @@ public class SessionManager : MonoBehaviour
             return _instance;
         }
     }
-
-    private static SessionManager _instance;
-
     public enum SessionState { MENU, GAME, STATECOUNT }
-    private SessionState sessionState;
+    
     // The name of the scenes for each of the states, they are 
     // loaded whenever the game is moved into that state.
-    private string[] SessionScenes = { "Menu", "Game" };
+    private string[] _sessionScenes = { "Menu", "Game" };
+    private static SessionManager _instance;
+    private SessionState _sessionState;
 
 	void Start ()
     {
@@ -45,8 +44,8 @@ public class SessionManager : MonoBehaviour
 
         DontDestroyOnLoad(gameObject);
 
-        sessionState = SessionState.MENU;
-        SceneManager.LoadScene(SessionScenes[(int)sessionState]);
+        _sessionState = SessionState.MENU;
+        SceneManager.LoadScene(_sessionScenes[(int)_sessionState]);
 
         _instance = this;
 	}
@@ -57,8 +56,8 @@ public class SessionManager : MonoBehaviour
     /// <param name="newState">The state that we are transitioning to</param>
     public void TransitionState(SessionState newState)
     {
-        SceneManager.LoadScene(SessionScenes[(int)newState]);
+        SceneManager.LoadScene(_sessionScenes[(int)newState]);
 
-        sessionState = newState;
+        _sessionState = newState;
     }
 }
