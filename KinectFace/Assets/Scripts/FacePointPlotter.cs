@@ -6,6 +6,7 @@ public class FacePointPlotter : MonoBehaviour {
 
     [SerializeField]
     Transform pointPrefab;
+
     [SerializeField]
     ColorSourceManager colorSource;
 

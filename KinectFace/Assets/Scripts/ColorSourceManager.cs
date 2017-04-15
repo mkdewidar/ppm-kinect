@@ -6,7 +6,6 @@ using Windows.Kinect;
 using Microsoft.Kinect.Face;
 
 public class ColorSourceManager : MonoBehaviour {
-
     public int colorWidth { get; private set; }
     public int colorHeight { get; private set; }
     public Texture2D texture { get; set; }
@@ -23,6 +22,13 @@ public class ColorSourceManager : MonoBehaviour {
 
     void Awake()
     {
+        /*Vector3 scale = transform.localScale;
+        scale.x = Screen.width;
+        scale.y = Screen.height;
+        scale.z = 1;*/
+
+        //transform.localScale = scale;
+
         _sensor = KinectSensor.GetDefault();
 
         if (_sensor != null)
@@ -105,6 +111,7 @@ public class ColorSourceManager : MonoBehaviour {
 
                     for (int index = 0; index < vertInCamSpace.Length; index++)
                     {
+                        // 1 meter = 10 units long in Unity
                         facePoints[index] = new Vector3(vertInCamSpace[index].X * 10, vertInCamSpace[index].Y * 10, vertInCamSpace[index].Z * 10);
                     }
 
