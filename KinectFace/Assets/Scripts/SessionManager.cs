@@ -30,7 +30,6 @@ public class SessionManager : MonoBehaviour
 
     public enum SessionState { MENU, GAME, STATECOUNT }
     private SessionState sessionState;
-    [SerializeField]
     // The name of the scenes for each of the states, they are 
     // loaded whenever the game is moved into that state.
     private string[] SessionScenes = { "Menu", "GameMain" };
