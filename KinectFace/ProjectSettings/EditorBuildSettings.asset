@@ -6,8 +6,10 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Loader.unity
+    path: Assets/Scenes/Main.unity
   - enabled: 1
     path: Assets/Scenes/Menu.unity
   - enabled: 1
-    path: Assets/Scenes/GameMain.unity
+    path: Assets/Scenes/Game.unity
+  - enabled: 1
+    path: Assets/Scenes/MiniGames/Smile.unity

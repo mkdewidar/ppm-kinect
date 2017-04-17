@@ -17,18 +17,28 @@ public class GameManager : MonoBehaviour
             return _instance;
         }
     }
-    
+    public static KinectSource kinectInstance;
+
     // All the minigame scenes
-    private string[] _gameScenes = { };
+    private string[] _gameScenes = { "Smile" };
     private int _currentSceneIndex;
     private bool _paused;
     private static GameManager _instance;
 
-	void Start ()
+	void Start()
     {
+        if ((_instance != null) && (_instance != this))
+        {
+            Debug.LogError("ERROR: There are other game managers, this shouldn't have happened");
+
+            Destroy(gameObject);
+        }
+        DontDestroyOnLoad(gameObject);
+
         _currentSceneIndex = 0;
         _paused = false;
-        DontDestroyOnLoad(gameObject);
+
+        kinectInstance = FindObjectOfType<KinectSource>();
 	}
 
     public void NextMiniGame()
