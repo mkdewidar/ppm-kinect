@@ -17,8 +17,7 @@ public class GameManager : MonoBehaviour
             return _instance;
         }
     }
-    public static KinectSource kinectInstance;
-
+    
     // All the minigame scenes
     private string[] _gameScenes = { "Smile" };
     private int _currentSceneIndex;
@@ -37,8 +36,6 @@ public class GameManager : MonoBehaviour
 
         _currentSceneIndex = 0;
         _paused = false;
-
-        kinectInstance = FindObjectOfType<KinectSource>();
 	}
 
     public void NextMiniGame()

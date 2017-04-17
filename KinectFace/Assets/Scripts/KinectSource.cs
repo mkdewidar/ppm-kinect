@@ -6,7 +6,38 @@ using Windows.Kinect;
 using Microsoft.Kinect.Face;
 using PoseData;
 
+/// <summary>
+/// Singleton class that provides an interface into all the Kinect functionality.
+/// </summary>
 public class KinectSource : MonoBehaviour {
+
+    public static KinectSource instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                // We need a prefab since it also has things like the mesh renderer 
+                // and whatnot that would be a pain to setup manually
+                _instance = Instantiate(Resources.Load("Kinect.prefab")) as KinectSource;
+            }
+            // We may have an instance that hasn't been initialised yet (Kinect wasn't connected)
+            if (_instance._sensor == null)
+            {
+                _instance.Initialise();
+                if (_instance._sensor == null)
+                {
+                    // Although we have an instance, we will return null 
+                    // so that none of them try to access the members which would be null
+                    // due to a failed initialisation.
+                    return null;
+                }
+            }
+            return _instance;
+        }
+    }
+    private static KinectSource _instance;
+
     public int colorWidth { get; private set; }
     public int colorHeight { get; private set; }
     public Texture2D texture { get; set; }
@@ -23,13 +54,18 @@ public class KinectSource : MonoBehaviour {
 
     void Start()
     {
-        /*Vector3 scale = transform.localScale;
-        scale.x = Screen.width;
-        scale.y = Screen.height;
-        scale.z = 1;*/
+        // Start is only called at the start of the frame 
+        // object may have been initialised by getter, so no need to
+        // go through all that again.
+        if (_sensor == null)
+            Initialise();
+    }
 
-        //transform.localScale = scale;
-
+    /// <summary>
+    /// Sets up the Kinect and all it's data
+    /// </summary>
+    private void Initialise()
+    {
         _sensor = KinectSensor.GetDefault();
 
         if (_sensor != null)
@@ -58,9 +94,11 @@ public class KinectSource : MonoBehaviour {
 
         _renderer = GetComponent<Renderer>();
         _renderer.material.SetTextureScale("_MainTex", new Vector2(1, -1));
-        
+
         // there are approx 1347 points that can be tracked
         facePoints = new Vector3[1347];
+
+        DontDestroyOnLoad(gameObject);
     }
 
     void Update()

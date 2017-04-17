@@ -24,7 +24,7 @@ public abstract class ExerciseManager : MonoBehaviour
     /// </summary>
     virtual protected void Start()
     {
-        kinect = GameManager.kinectInstance;
+        kinect = KinectSource.instance;
         Debug.Log("Kinect reference setup");
     }
 
