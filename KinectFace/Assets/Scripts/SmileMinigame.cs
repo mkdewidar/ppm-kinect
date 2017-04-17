@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using PoseData;
 
 /// <summary>
 /// Contains all the logic for the smiling minigame.
@@ -17,11 +16,10 @@ public class SmileMinigame : ExerciseManager
 	
 	void Update()
     {
-        if (kinect != null)
+        if (_kinect != null)
         {
-            Pose currentPose = kinect.GetCurrentPose();
-            currentPose.tolerance = 1f;
-            if (CheckUserPose(currentPose))
+            Pose currentPose = _kinect.GetCurrentPose();
+            if (_currentExercise.IsSimilar(currentPose, _tolerance))
             {
                 Debug.Log("You've finished this exercise! To the next one! -> ");
                 GameManager.instance.NextMiniGame();

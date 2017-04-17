@@ -36,6 +36,8 @@ public class GameManager : MonoBehaviour
 
         _currentSceneIndex = 0;
         _paused = false;
+
+        SceneManager.LoadScene(_gameScenes[_currentSceneIndex]);
 	}
 
     public void NextMiniGame()
