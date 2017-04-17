@@ -5,7 +5,7 @@ using System.Linq;
 using Windows.Kinect;
 using Microsoft.Kinect.Face;
 
-public class ColorSourceManager : MonoBehaviour {
+public class KinectSource : MonoBehaviour {
     public int colorWidth { get; private set; }
     public int colorHeight { get; private set; }
     public Texture2D texture { get; set; }

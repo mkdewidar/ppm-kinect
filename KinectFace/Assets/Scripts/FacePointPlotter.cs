@@ -8,11 +8,10 @@ public class FacePointPlotter : MonoBehaviour {
     Transform pointPrefab;
 
     [SerializeField]
-    ColorSourceManager colorSource;
+    KinectSource kinectSource;
 
 	void Start () {
-        // creates as many points as needed
-        for (int index = 0; index < colorSource.facePoints.Length; index++)
+        for (int index = 0; index < kinectSource.facePoints.Length; index++)
         {
             Instantiate(pointPrefab, Vector3.zero, Quaternion.identity, transform);
         }
@@ -20,7 +19,7 @@ public class FacePointPlotter : MonoBehaviour {
 	
 	void Update () {
         Transform[] pointTransforms = GetComponentsInChildren<Transform>();
-        Vector3[] pointCoords = colorSource.facePoints;
+        Vector3[] pointCoords = kinectSource.facePoints;
 
         for (int index = 0; index < pointCoords.Length; index++)
         {
