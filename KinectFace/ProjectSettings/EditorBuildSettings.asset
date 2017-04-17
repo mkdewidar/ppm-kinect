@@ -13,3 +13,5 @@ EditorBuildSettings:
     path: Assets/Scenes/Game.unity
   - enabled: 1
     path: Assets/Scenes/MiniGames/Smile.unity
+  - enabled: 1
+    path: Assets/Scenes/MiniGames/Blow.unity

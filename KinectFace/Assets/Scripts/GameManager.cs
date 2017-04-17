@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     }
     
     // All the minigame scenes
-    private string[] _gameScenes = { "Smile" };
+    private string[] _gameScenes = { "Smile", "Blow" };
     private int _currentSceneIndex;
     private bool _paused;
     private static GameManager _instance;
