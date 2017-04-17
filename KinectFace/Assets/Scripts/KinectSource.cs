@@ -173,7 +173,7 @@ public class KinectSource : MonoBehaviour {
 
         for (int facePointIndex = 0; facePointIndex < facePoints.Length; facePointIndex++)
         {
-            pose.faceRefPoints[facePointIndex] = facePoints[facePointIndex] - facePoints[(int)HighDetailFacePoints.NoseTip];
+            pose.faceRefPoints.Add(facePoints[facePointIndex] - facePoints[(int)HighDetailFacePoints.NoseTip]);
         }
 
         return pose;

@@ -12,12 +12,16 @@ public class SmileMinigame : ExerciseManager
     {
         base.Start();
         // The current exercise needs to be loaded from somewhere, we need to have the poses saved in some file
-        // _currentExercise = ;
+        _currentExercise = PoseFileHandler.LoadExercise("smile");
 	}
 	
 	void Update()
     {
-        if (_kinect != null)
+        if (!_kinect)
+        {
+            _kinect = KinectSource.instance;
+        }
+        else
         {
             Pose currentPose = _kinect.GetCurrentPose();
             if (_currentExercise.IsSimilar(currentPose, _tolerance))

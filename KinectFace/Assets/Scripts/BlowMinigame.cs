@@ -7,7 +7,7 @@ public class BlowMinigame : ExerciseManager
 	override protected void Start ()
     {
         base.Start();
-        // _currentExercise = ;
+        _currentExercise = PoseFileHandler.LoadExercise("blow");
 	}
 	
 	void Update ()

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class Pose {
@@ -23,16 +24,21 @@ public class Pose {
     /// <returns>True if the other pose is within range of this one.</returns>
     public bool IsSimilar(Pose otherPose, float tolerance)
     {
+        if (faceRefPoints.Count == 0)
+        {
+            return false;
+        }
+
         for (int i = 0; i < faceRefPoints.Count; i++)
         {
-            float upperBound_x = faceRefPoints[i].x + tolerance;
+            Single upperBound_x = faceRefPoints[i].x + tolerance;
             float lowerBound_x = faceRefPoints[i].x - tolerance;
 
             float upperBound_y = faceRefPoints[i].y + tolerance;
             float lowerBound_y = faceRefPoints[i].y - tolerance;
 
-            if ((otherPose.faceRefPoints[i].x < lowerBound_x && otherPose.faceRefPoints[i].x > upperBound_x) &&
-                (otherPose.faceRefPoints[i].y < lowerBound_y && otherPose.faceRefPoints[i].y > upperBound_y))
+            if ((otherPose.faceRefPoints[i].x >= lowerBound_x && otherPose.faceRefPoints[i].x <= upperBound_x) &&
+                (otherPose.faceRefPoints[i].y >= lowerBound_y && otherPose.faceRefPoints[i].y <= upperBound_y))
             {
                 return false;
             }

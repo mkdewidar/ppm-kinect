@@ -16,7 +16,7 @@ public abstract class ExerciseManager : MonoBehaviour
     virtual protected void Start()
     {
         _kinect = KinectSource.instance;
-        _tolerance = 0.5f;
+        _tolerance = 0.1f;
         Debug.Log("Kinect reference setup");
     }
 }
