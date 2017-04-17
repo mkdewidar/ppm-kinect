@@ -5,15 +5,9 @@ using PoseData;
 
 namespace PoseData
 {
-    public struct ReferencePoint
-    {
-        public float x { get; private set; }
-        public float y { get; private set; }
-    }
-
     public struct Pose
     {
-        public List<ReferencePoint> faceRefPoints { get; private set; }
+        public List<Vector2> faceRefPoints { get; private set; }
         public float tolerance { get; private set; }
     }
 }
@@ -50,7 +44,7 @@ public abstract class ExerciseManager : MonoBehaviour
         return true;
     }
 
-    private static bool CheckPointsCollide(ReferencePoint userFacePoint, ReferencePoint exerciseFacePoint)
+    private static bool CheckPointsCollide(Vector2 userFacePoint, Vector2 exerciseFacePoint)
     {
         float upperBound_x = exerciseFacePoint.x + _currentExercise.tolerance;
         float lowerBound_x = exerciseFacePoint.x - _currentExercise.tolerance;
