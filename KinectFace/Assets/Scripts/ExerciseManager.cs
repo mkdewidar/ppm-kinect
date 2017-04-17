@@ -7,16 +7,28 @@ namespace PoseData
 {
     public struct Pose
     {
-        public List<Vector2> faceRefPoints { get; private set; }
-        public float tolerance { get; private set; }
+        public List<Vector2> faceRefPoints;
+        public float tolerance;
     }
 }
 
 public abstract class ExerciseManager : MonoBehaviour
 {
-    static public Pose _currentExercise { get; set; }
+    protected Pose _currentExercise;
+    // A reference to the kinect necessary to get the current pose
+    protected KinectSource kinect;
 
-    public static bool CheckUserPose(Pose currentPose)
+    /// <summary>
+    /// A base class Start function to setup the kinect reference and other common stuff.
+    /// Even when overriden by subclass Unity can still call it when necessary.
+    /// </summary>
+    virtual protected void Start()
+    {
+        kinect = GameManager.kinectInstance;
+        Debug.Log("Kinect reference setup");
+    }
+
+    protected bool CheckUserPose(Pose currentPose)
     {
         // Currently only supports poses with the same face points!
         // Compares pose refPoints[i] to see if they are equal.
@@ -44,7 +56,7 @@ public abstract class ExerciseManager : MonoBehaviour
         return true;
     }
 
-    private static bool CheckPointsCollide(Vector2 userFacePoint, Vector2 exerciseFacePoint)
+    protected bool CheckPointsCollide(Vector2 userFacePoint, Vector2 exerciseFacePoint)
     {
         float upperBound_x = exerciseFacePoint.x + _currentExercise.tolerance;
         float lowerBound_x = exerciseFacePoint.x - _currentExercise.tolerance;

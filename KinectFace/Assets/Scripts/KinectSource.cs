@@ -4,12 +4,13 @@ using UnityEngine;
 using System.Linq;
 using Windows.Kinect;
 using Microsoft.Kinect.Face;
+using PoseData;
 
 public class KinectSource : MonoBehaviour {
     public int colorWidth { get; private set; }
     public int colorHeight { get; private set; }
     public Texture2D texture { get; set; }
-    public Vector3[] facePoints { get; private set; } 
+    public Vector3[] facePoints { get; private set; }
 
     private KinectSensor _sensor;
     private MultiSourceFrameReader _reader;
@@ -20,7 +21,7 @@ public class KinectSource : MonoBehaviour {
     private FaceModel _faceModel;
     private Renderer _renderer;
 
-    void Awake()
+    void Start()
     {
         /*Vector3 scale = transform.localScale;
         scale.x = Screen.width;
@@ -122,7 +123,23 @@ public class KinectSource : MonoBehaviour {
         _renderer.material.mainTexture = texture;
     }
 
+    /// <summary>
+    /// Returns the face points in a Pose structure.
+    /// </summary>
+    /// <returns>The pose structure with all the face points and with no tolerance set.</returns>
+    public Pose GetCurrentPose()
+    {
+        Pose pose = new Pose();
 
+        pose.faceRefPoints.Capacity = facePoints.Length;
+
+        for (int facePointIndex = 0; facePointIndex < facePoints.Length; facePointIndex++)
+        {
+            pose.faceRefPoints[facePointIndex] = facePoints[facePointIndex];
+        }
+
+        return pose;
+    }
 
     void OnApplicationQuit()
     {
