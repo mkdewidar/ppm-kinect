@@ -10,20 +10,31 @@ public class FacePointPlotter : MonoBehaviour {
     [SerializeField]
     KinectSource kinectSource;
 
-	void Start () {
-        for (int index = 0; index < kinectSource.facePoints.Length; index++)
+	void Awake() {
+        if (kinectSource != null)
         {
-            Instantiate(pointPrefab, Vector3.zero, Quaternion.identity, transform);
+            for (int index = 0; index < kinectSource.facePoints.Length; index++)
+            {
+                Instantiate(pointPrefab, Vector3.zero, Quaternion.identity, transform);
+            }
         }
 	}
 	
 	void Update () {
-        Transform[] pointTransforms = GetComponentsInChildren<Transform>();
-        Vector3[] pointCoords = kinectSource.facePoints;
-
-        for (int index = 0; index < pointCoords.Length; index++)
+        if (kinectSource != null)
         {
-            pointTransforms[index].position = pointCoords[index];
+            if (transform.childCount == 0)
+            {
+                // we never got to setup our children, so lets setup now
+                Awake();
+            }
+            Transform[] pointTransforms = GetComponentsInChildren<Transform>();
+            Vector3[] pointCoords = kinectSource.facePoints;
+
+            for (int index = 0; index < pointCoords.Length; index++)
+            {
+                pointTransforms[index].position = pointCoords[index];
+            }
         }
 	}
 }
