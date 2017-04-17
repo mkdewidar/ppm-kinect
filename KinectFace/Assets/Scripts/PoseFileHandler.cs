@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using PoseData;
 using System.IO;
 
 public class PoseFileHandler : MonoBehaviour 
@@ -50,7 +49,7 @@ public class PoseFileHandler : MonoBehaviour
             }
         }
 
-        return new Pose(null, 0.0f);
+        return new Pose(null);
     }
 
     private Pose CreatePose(string[] exercise)
@@ -67,6 +66,6 @@ public class PoseFileHandler : MonoBehaviour
             Vector2 point = new Vector2(x, y);
         }
 
-        return new Pose(posePoints, 1.0f);
+        return new Pose(posePoints);
     }
 }

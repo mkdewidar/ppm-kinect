@@ -4,7 +4,6 @@ using UnityEngine;
 using System.Linq;
 using Windows.Kinect;
 using Microsoft.Kinect.Face;
-using PoseData;
 
 /// <summary>
 /// Singleton class that provides an interface into all the Kinect functionality.
@@ -19,13 +18,14 @@ public class KinectSource : MonoBehaviour {
             {
                 // We need a prefab since it also has things like the mesh renderer 
                 // and whatnot that would be a pain to setup manually
-                _instance = Instantiate(Resources.Load("Kinect.prefab")) as KinectSource;
+                _instance = Instantiate(Resources.Load<KinectSource>("Kinect"));
             }
-            // We may have an instance that hasn't been initialised yet (Kinect wasn't connected)
-            if (_instance._sensor == null)
+            // We will still get an instance even if there is no Kinect, in which case 
+            // we will return null to give the impression no Kinect exists.
+            if ((_instance._sensor == null) || (!_instance._sensor.IsAvailable))
             {
                 _instance.Initialise();
-                if (_instance._sensor == null)
+                if (!_instance._sensor.IsAvailable)
                 {
                     // Although we have an instance, we will return null 
                     // so that none of them try to access the members which would be null

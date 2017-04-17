@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     }
     
     // All the minigame scenes
-    private string[] _gameScenes = { "Smile" };
+    private string[] _gameScenes = { "Smile", "Blow" };
     private int _currentSceneIndex;
     private bool _paused;
     private static GameManager _instance;
@@ -36,6 +36,8 @@ public class GameManager : MonoBehaviour
 
         _currentSceneIndex = 0;
         _paused = false;
+
+        SceneManager.LoadScene(_gameScenes[_currentSceneIndex]);
 	}
 
     public void NextMiniGame()
