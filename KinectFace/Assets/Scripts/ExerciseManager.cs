@@ -9,6 +9,12 @@ namespace PoseData
     {
         public List<Vector2> faceRefPoints;
         public float tolerance;
+
+        public Pose(List<Vector2> posePoints, float poseTolerance)
+        {
+            faceRefPoints = posePoints;
+            tolerance = poseTolerance;
+        }
     }
 }
 
