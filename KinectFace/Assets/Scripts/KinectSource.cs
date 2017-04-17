@@ -162,7 +162,7 @@ public class KinectSource : MonoBehaviour {
     }
 
     /// <summary>
-    /// Returns the face points in a Pose structure.
+    /// Returns the face points realtive to the nose in a Pose structure.
     /// </summary>
     /// <returns>The pose structure with all the face points and with no tolerance set.</returns>
     public Pose GetCurrentPose()
@@ -173,7 +173,7 @@ public class KinectSource : MonoBehaviour {
 
         for (int facePointIndex = 0; facePointIndex < facePoints.Length; facePointIndex++)
         {
-            pose.faceRefPoints[facePointIndex] = facePoints[facePointIndex];
+            pose.faceRefPoints[facePointIndex] = facePoints[facePointIndex] - facePoints[(int)HighDetailFacePoints.NoseTip];
         }
 
         return pose;
