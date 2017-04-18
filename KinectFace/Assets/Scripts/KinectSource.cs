@@ -54,6 +54,14 @@ public class KinectSource : MonoBehaviour {
 
     void Start()
     {
+        if ((_instance != null) && (_instance != this))
+        {
+            Debug.LogError("ERROR: There are other Kinect sources, this shouldn't have happened");
+
+            Destroy(gameObject);
+        }
+        DontDestroyOnLoad(gameObject);
+
         // Start is only called at the start of the frame 
         // object may have been initialised by getter, so no need to
         // go through all that again.
