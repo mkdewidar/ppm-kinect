@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class FacePointPlotter : MonoBehaviour {
@@ -28,7 +29,20 @@ public class FacePointPlotter : MonoBehaviour {
                 // we never got to setup our children, so lets setup now
                 Awake();
             }
-            Transform[] pointTransforms = GetComponentsInChildren<Transform>();
+            Transform[] pointTransformsAll = GetComponentsInChildren<Transform>();
+            Transform[] pointTransforms = new Transform[pointTransformsAll.Length-1] ;
+            int indexer = 0;
+            //getcomponentsinchildren also gets the component of the parent, this loop removes it
+            foreach (Transform child in pointTransformsAll)
+            {
+                if(child!= this.transform)
+                {
+                    pointTransforms[indexer] = child;
+                    indexer++;
+                }
+            }
+
+
             Vector3[] pointCoords = kinectSource.facePoints;
 
             for (int index = 0; index < pointCoords.Length; index++)
