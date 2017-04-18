@@ -4,8 +4,12 @@ using UnityEngine;
 
 public class BlowMinigame : ExerciseManager
 {
+    private int blowCount;
+    public GameObject tree;
+
 	override protected void Start ()
     {
+        blowCount = 0;
         base.Start();
         _currentExercise = PoseFileHandler.LoadExercise("blow");
 	}
@@ -18,8 +22,12 @@ public class BlowMinigame : ExerciseManager
 
             if (_currentExercise.IsSimilar(currentPose, _tolerance))
             {
-                Debug.Log("You have completed this exercise! onto the next one! -> ");
-                //GameManager.instance.NextMiniGame();
+                blowCount++;
+                if (blowCount > 100)
+                {
+                    Debug.Log("You have completed this exercise! onto the next one! -> ");
+                    //GameManager.instance.NextMiniGame();
+                }
             }
         }
 	}
