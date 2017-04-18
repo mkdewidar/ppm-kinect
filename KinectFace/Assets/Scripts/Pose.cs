@@ -28,10 +28,10 @@ public class Pose {
         {
             return false;
         }
-
+        int counter = 0;
         for (int i = 0; i < faceRefPoints.Count; i++)
         {
-            Single upperBound_x = faceRefPoints[i].x + tolerance;
+            float upperBound_x = faceRefPoints[i].x + tolerance;
             float lowerBound_x = faceRefPoints[i].x - tolerance;
 
             float upperBound_y = faceRefPoints[i].y + tolerance;
@@ -40,10 +40,22 @@ public class Pose {
             if ((otherPose.faceRefPoints[i].x >= lowerBound_x && otherPose.faceRefPoints[i].x <= upperBound_x) &&
                 (otherPose.faceRefPoints[i].y >= lowerBound_y && otherPose.faceRefPoints[i].y <= upperBound_y))
             {
-                return false;
-            }
-        }
+                //return true;
+                continue;
 
+            }
+            else {
+                counter++;
+                if (counter > 200)
+                {
+                    ///Debug.Log(counter);
+                    return false;
+                }
+                
+                 }
+            
+        }
+        
         return true;
     }
 }

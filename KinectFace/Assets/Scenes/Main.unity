@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311992, g: 0.38074034, b: 0.35872713, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311926, g: 0.38073996, b: 0.35872698, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -173,3 +173,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffc86129fd19f0741b8521cb1ffe9be3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &899514550 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1277542342711650, guid: d012d7612c76f39478a0a9d8ad782bea,
+    type: 2}
+  m_PrefabInternal: {fileID: 267901050}
+--- !u!114 &899514551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 899514550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a31e0d61afab06b4498d2716b0724015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pointPrefab: {fileID: 4412403154841542, guid: c8581e4f14d75d14b9bbf49998c90e14,
+    type: 2}
+  kinectSource: {fileID: 899514552}
+--- !u!114 &899514552 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114199986465696894, guid: d012d7612c76f39478a0a9d8ad782bea,
+    type: 2}
+  m_PrefabInternal: {fileID: 267901050}
+  m_Script: {fileID: 11500000, guid: 97c82ff02f898eb4885f4158512141e9, type: 3}

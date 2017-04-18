@@ -19,7 +19,7 @@ public class BlowMinigame : ExerciseManager
             if (_currentExercise.IsSimilar(currentPose, _tolerance))
             {
                 Debug.Log("You have completed this exercise! onto the next one! -> ");
-                GameManager.instance.NextMiniGame();
+                //GameManager.instance.NextMiniGame();
             }
         }
 	}
