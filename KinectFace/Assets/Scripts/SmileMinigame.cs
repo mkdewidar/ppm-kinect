@@ -26,7 +26,7 @@ public class SmileMinigame : ExerciseManager
             Pose currentPose = _kinect.GetCurrentPose();
             if (_currentExercise.IsSimilar(currentPose, _tolerance))
             {
-                Debug.Log("You've finished this exercise! To the next one! -> ");
+                Debug.Log("You've finished the smile exercise! To the next one! -> ");
                 GameManager.instance.NextMiniGame();
             }
         }

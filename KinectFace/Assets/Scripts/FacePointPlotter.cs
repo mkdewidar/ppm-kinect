@@ -41,13 +41,14 @@ public class FacePointPlotter : MonoBehaviour {
                     indexer++;
                 }
             }
-
-
+            
             Vector3[] pointCoords = kinectSource.facePoints;
 
             for (int index = 0; index < pointCoords.Length; index++)
             {
-                pointTransforms[index].position = pointCoords[index];
+                Vector3 temp = pointCoords[index];
+                temp.Scale(new Vector3(2, 2, 0));
+                pointTransforms[index].position = temp;
             }
         }
 	}
