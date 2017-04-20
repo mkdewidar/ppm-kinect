@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public class MenuManager : MonoBehaviour
 {
+    KinectSource _kinect;
     private bool nameInputEnabled = false;
     private string exerciseNameInput = "blow";
     PoseFileHandler poseFileHandler = null;
@@ -19,18 +20,20 @@ public class MenuManager : MonoBehaviour
 
     public void onShowKinect()
     {
-        poseFileHandler = new PoseFileHandler();
+        
     }
 
     public void onCapturePose()
     {
-        if (poseFileHandler == null)
+        if (_kinect == null)
         {
-            onShowKinect();
+            _kinect = KinectSource.instance;
         }
         else
         {
+            poseFileHandler = new PoseFileHandler();
             poseFileHandler.SaveNewExercise(exerciseNameInput);
         }
+        
     }
 }

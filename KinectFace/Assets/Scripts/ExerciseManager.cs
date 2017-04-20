@@ -7,7 +7,9 @@ public abstract class ExerciseManager : MonoBehaviour
     protected Pose _currentExercise;
     // A reference to the kinect necessary to get the current pose
     protected KinectSource _kinect;
-    protected float _tolerance;
+
+    // tolerance with face
+    public float _tolerance { get; set; }
 
     /// <summary>
     /// A base class Start function to setup the kinect reference and other common stuff.

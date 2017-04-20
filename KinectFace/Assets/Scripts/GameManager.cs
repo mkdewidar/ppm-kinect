@@ -42,8 +42,12 @@ public class GameManager : MonoBehaviour
 
     public void NextMiniGame()
     {
-        SceneManager.UnloadSceneAsync(_gameScenes[_currentSceneIndex]);
+        
+        Debug.Log(_currentSceneIndex);
         _currentSceneIndex++;
+        Debug.Log(_gameScenes[_currentSceneIndex]);
+      
         SceneManager.LoadScene(_gameScenes[_currentSceneIndex]);
+        //SceneManager.UnloadSceneAsync(_gameScenes[_currentSceneIndex-1]);
     }
 }

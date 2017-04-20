@@ -4,6 +4,10 @@ using System;
 using UnityEngine;
 
 public class Pose {
+
+    // sensitivity for over-all face (num points match)
+    public int _sensitivity { get; set; }
+
     public List<Vector2> faceRefPoints;
 
     public Pose(List<Vector2> posePoints)
@@ -46,7 +50,7 @@ public class Pose {
             }
             else {
                 counter++;
-                if (counter > 200)
+                if (counter > _sensitivity)
                 {
                     ///Debug.Log(counter);
                     return false;
